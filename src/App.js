@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import GlobalStyles from "./GlobalStyles.styled";
-import { Map } from "./components/Map/Map";
+import Map from "./components/Map/Map";
 
 function App() {
   const [polygons, setPolygons] = useState([]);
@@ -10,8 +10,16 @@ function App() {
     const { data } = await axios.get(
       "https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Election_Districts_Water_Included/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=pgeojson"
     );
+    // .slice(0, 10)
 
-    setPolygons(data);
+    const preparedData = data.features.map((item) =>
+      item.geometry.coordinates[0].map((item) => ({
+        lat: item[0],
+        lng: item[1],
+      }))
+    );
+
+    setPolygons(preparedData);
   };
 
   useEffect(() => {
@@ -21,8 +29,7 @@ function App() {
   return (
     <>
       <GlobalStyles />
-      lol
-      <Map />
+      <Map polygons={polygons} />
     </>
   );
 }
