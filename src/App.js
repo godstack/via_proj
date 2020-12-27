@@ -12,10 +12,11 @@ function App() {
     );
     // .slice(0, 10)
 
-    const preparedData = data.features.map((item) =>
-      item.geometry.coordinates[0].map((item) => ({
+    const preparedData = data.features.map((polygon) =>
+      polygon.geometry.coordinates[0].map((item) => ({
         lat: item[0],
         lng: item[1],
+        time: new Date(),
       }))
     );
 

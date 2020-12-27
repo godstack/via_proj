@@ -54,25 +54,26 @@ const Map = ({ polygons }) => {
         onLoad={onMapLoad}
       >
         {polygons.map((item) => {
-          debugger;
-
-          // const kek = item.geometry.coordinates[0].map((item) => ({
-          //   lat: item[0],
-          //   lng: item[1],
-          // }));
-
           return (
             <Polygon
               paths={item}
-              strokeColor={"#FF0000"}
-              strokeOpacity={0.8}
-              strokeWeight={2}
-              fillColor={"#FF0000"}
-              fillOpacity={0.35}
+              options={{
+                strokeColor: "#FF0000",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#FF0000",
+                fillOpacity: 0.35,
+              }}
+              onClick={(e) => {
+                setSelected({
+                  lat: e.latLng.lat(),
+                  lng: e.latLng.lng(),
+                  time: item[0].time,
+                });
+              }}
             />
           );
         })}
-
         <Polygon
           paths={triangleCoords}
           options={{
@@ -83,6 +84,17 @@ const Map = ({ polygons }) => {
             fillOpacity: 0.35,
           }}
         />
+        {selected && (
+          <InfoWindow
+            position={{ lat: selected.lat, lng: selected.lng }}
+            onCloseClick={() => setSelected(null)}
+          >
+            <div>
+              <h2>Polygon</h2>
+              <p>Spotted {formatRelative(selected.time, new Date())}</p>
+            </div>
+          </InfoWindow>
+        )}
 
         {/* {markers.map((marker) => (
           <Marker
