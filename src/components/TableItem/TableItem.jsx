@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 import { formatRelative } from 'date-fns';
 import { Item, Column } from './TableItem.styled';
 
-const TableItem = ({ item, setSelectedItem, selectedItem }) => {
-  const { time, color, name, comment } = item;
+const TableItem = ({ item, setSelectedItem, selectedItem, onKeyPress }) => {
+  const { time, color, name, comment, id } = item;
 
   return (
     <Item
@@ -17,10 +17,28 @@ const TableItem = ({ item, setSelectedItem, selectedItem }) => {
         }
       }}
     >
-      <Column>{name}</Column>
-      <Column>{color}</Column>
+      <Column>
+        <input
+          type='text'
+          defaultValue={name}
+          onKeyPress={e => onKeyPress(e, 'name', id)}
+        />
+      </Column>
+      <Column>
+        <input
+          type='text'
+          defaultValue={color}
+          onKeyPress={e => onKeyPress(e, 'color', id)}
+        />
+      </Column>
       <Column>{formatRelative(time, new Date())}</Column>
-      <Column>{comment ? comment : 'No comment'}</Column>
+      <Column>
+        <input
+          type='text'
+          defaultValue={comment}
+          onKeyPress={e => onKeyPress(e, 'comment', id)}
+        />
+      </Column>
     </Item>
   );
 };

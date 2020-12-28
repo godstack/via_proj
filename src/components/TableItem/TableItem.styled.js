@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const Item = styled.div`
   display: grid;
-  grid-template-columns: 20% repeat(2, 15%) 1fr;
+  grid-template-columns: repeat(4, 1fr);
   padding: 10px 20px;
   background-color: #ebf0f2;
   border: solid 1px #dce5e8;

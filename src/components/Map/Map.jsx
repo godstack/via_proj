@@ -90,6 +90,16 @@ const Map = ({ polygons, selectedItem, setSelectedItem }) => {
               fillColor: selectedItem.color,
               fillOpacity: 0.35
             }}
+            // onClick={e => {
+            //   setSelected({
+            //     lat: e.latLng.lat(),
+            //     lng: e.latLng.lng(),
+            //     time: selectedItem.time,
+            //     color: selectedItem.color,
+            //     name: selectedItem.name,
+            //     comment: selectedItem.comment
+            //   });
+            // }}
             key={selectedItem.id + 'unique'}
           />
         )}

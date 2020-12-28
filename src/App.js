@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import GlobalStyles from './GlobalStyles.styled';
 import uuid from 'react-uuid';
@@ -39,6 +39,23 @@ function App() {
     setPolygons(preparedData);
   };
 
+  const onKeyPress = (e, propName, id) => {
+    if (e.key === 'Enter') {
+      debugger;
+      const newPolygons = polygons.map(item => {
+        if (item.id === id) {
+          return {
+            ...item,
+            [propName]: e.target.value
+          };
+        }
+        return item;
+      });
+
+      setPolygons(newPolygons);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -69,6 +86,7 @@ function App() {
                 key={item.id}
                 setSelectedItem={setSelectedItem}
                 selectedItem={selectedItem}
+                onKeyPress={onKeyPress}
               />
             ))}
           </TableContent>
