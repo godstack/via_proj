@@ -1,123 +1,114 @@
-import React, { memo, useCallback, useRef, useState } from "react";
+import React, { memo, useCallback, useRef, useState, useMemo } from 'react';
 import {
   GoogleMap,
   useLoadScript,
-  Marker,
   InfoWindow,
-  Polygon,
-} from "@react-google-maps/api";
-import { StyledMapContainer } from "./Map.styled";
-import { libraries, center, mapContainerStyle } from "./mapConfig";
-import { formatRelative } from "date-fns";
+  Polygon
+} from '@react-google-maps/api';
+import { StyledMapContainer } from './Map.styled';
+import { libraries, center, mapContainerStyle } from './mapConfig';
+import { formatRelative } from 'date-fns';
 
-const triangleCoords = [
-  { lat: 25.774, lng: -80.19 },
-  { lat: 18.466, lng: -66.118 },
-  { lat: 32.321, lng: -64.757 },
-  { lat: 25.774, lng: -80.19 },
-];
-
-const Map = ({ polygons }) => {
-  const [markers, setMarkers] = useState([]);
+const Map = ({ polygons, selectedItem, setSelectedItem }) => {
   const [selected, setSelected] = useState(null);
 
-  // debugger;
+  const memoizedPolygons = useMemo(
+    () =>
+      polygons.map(item => (
+        <Polygon
+          paths={item.coordinates}
+          options={{
+            strokeColor: '##000000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '##000000',
+            fillOpacity: 0.35
+          }}
+          onClick={e => {
+            setSelected({
+              lat: e.latLng.lat(),
+              lng: e.latLng.lng(),
+              time: item.time,
+              color: item.color,
+              name: item.name,
+              comment: item.comment
+            });
+          }}
+          key={item.id}
+          // onMouseOver={e => {
+          //   setSelectedItem(item);
+          // }}
+          // onMouseOut={e => {
+          //   setSelectedItem(null);
+          // }}
+        />
+      )),
+    [polygons]
+  );
 
-  const onMapClick = useCallback((e) => {
-    setMarkers((currentState) => [
-      ...currentState,
-      { lat: e.latLng.lat(), lng: e.latLng.lng(), time: new Date() },
-    ]);
+  console.log(memoizedPolygons);
+
+  const onMapClick = useCallback(e => {
+    // setMarkers(currentState => [
+    //   ...currentState,
+    //   { lat: e.latLng.lat(), lng: e.latLng.lng(), time: new Date() }
+    // ]);
   }, []);
 
   const mapRef = useRef();
-  const onMapLoad = useCallback((map) => {
+  const onMapLoad = useCallback(map => {
     mapRef.current = map;
   }, []);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries,
+    libraries
   });
 
-  if (loadError) return "Error loading maps";
+  if (loadError) return 'Error loading maps';
 
-  if (!isLoaded) return "Loading maps";
+  if (!isLoaded) return 'Loading maps';
 
   return (
     <StyledMapContainer>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
-        zoom={3}
+        zoom={11}
         center={center}
         onClick={onMapClick}
         onLoad={onMapLoad}
       >
-        {polygons.map((item) => {
-          return (
-            <Polygon
-              paths={item}
-              options={{
-                strokeColor: "#FF0000",
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                fillColor: "#FF0000",
-                fillOpacity: 0.35,
-              }}
-              onClick={(e) => {
-                setSelected({
-                  lat: e.latLng.lat(),
-                  lng: e.latLng.lng(),
-                  time: item[0].time,
-                });
-              }}
-            />
-          );
-        })}
-        <Polygon
-          paths={triangleCoords}
-          options={{
-            strokeColor: "#FF0000",
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: "#FF0000",
-            fillOpacity: 0.35,
-          }}
-        />
+        {memoizedPolygons}
+
+        {selectedItem && (
+          <Polygon
+            paths={selectedItem.coordinates}
+            options={{
+              strokeColor: selectedItem.color,
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+              fillColor: selectedItem.color,
+              fillOpacity: 0.35
+            }}
+            key={selectedItem.id + 'unique'}
+          />
+        )}
+
         {selected && (
           <InfoWindow
             position={{ lat: selected.lat, lng: selected.lng }}
             onCloseClick={() => setSelected(null)}
           >
             <div>
-              <h2>Polygon</h2>
+              <h2>Polygon {selected.name}</h2>
+              <p>Color {selected.color}</p>
+              <p>
+                Comment: {selected.comment ? selected.comment : 'No comment'}
+              </p>
               <p>Spotted {formatRelative(selected.time, new Date())}</p>
             </div>
           </InfoWindow>
         )}
-
-        {/* {markers.map((marker) => (
-          <Marker
-            key={marker.time.toISOString()}
-            position={{ lat: marker.lat, lng: marker.lng }}
-            onClick={() => setSelected(marker)}
-            // icon={{
-            //   url:
-            //     "http://icons.iconarchive.com/icons/paomedia/small-n-flat/48/map-marker-icon.png",
-            //   scaledSize: new window.google.maps.Size(30, 30),
-            //   origin: new window.google.maps.Point(0, 0),
-            //   anchor: new window.google.maps.Point(0, 0),
-            // }}
-          />
-        ))}
-        {selected && (
-          <InfoWindow position={{ lat: selected.lat, lng: selected.lng }} onCloseClick={() => setSelected(null)}>
-            <div>
-              <h2>Bear spotted!</h2>
-              <p>Spotted {formatRelative(selected.time, new Date())}</p>
-            </div>
-          </InfoWindow>
-        )} */}
       </GoogleMap>
     </StyledMapContainer>
   );
